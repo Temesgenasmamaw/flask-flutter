@@ -67,7 +67,6 @@ importlib-metadata==6.1.0
 imutils==0.5.4
 iopath==0.1.9
 ipykernel==6.15.1
-ipython==8.4.0
 itsdangerous==2.1.2
 jax==0.4.8
 jedi==0.18.1
