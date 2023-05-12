@@ -7,7 +7,7 @@ import pickle
 app = Flask(__name__)
 
 
-flower_model = pickle.load(open('model.pkl', 'rb'))
+flower_model = pickle.load(open('myModel.pkl', 'rb'))
 
 @app.route('/')
 def method_name():
@@ -24,27 +24,6 @@ def ValuePredictor(to_predict_list):
     result = flower_model.predict(to_predict)
     return result
 
-# @app.route('/resultApi', methods=['POST'])
-# def Api():
-#     if request.method == 'POST':
-#         to_predict_list = request.form.to_dict()
-#         to_predict_list = list(to_predict_list.values())
-#         to_predict_list = list(map(int, to_predict_list))
-#         result = ValuePredictor(to_predict_list)
-            
-#         return jsonify({'prediction':prediction})
-# app.route('/recommend',methods='POST') 
-# def recommend():
-#     if request.method=='POST':
-#         a=request.form.get('Pregnancies')
-#         b=request.form.get('Glucose')
-#         c=request.form.get(BloodPressure)
-#         d=request.form.get('SkinThickness') 
-#         data=[a,b,c,d]
-#         ress=np.array(data)
-#         print(ress)
-#         res=np.array(data) 
-#         res=flower_model.predict(res)  
 @app.route('/add', methods = ['POST'])
 def recommend():
     a=request.json['Pregnancies']
@@ -57,10 +36,10 @@ def recommend():
 @app.route('/predict', methods = ['POST'])
 def results():
     if request.method == 'POST':
-            a=request.json['Pregnancies']
-            b=request.json['Glucose']
-            c=request.json['BloodPressure']
-            d=request.json['SkinThickness']
+            a=request.json['ph']
+            b=request.json['rain fall']
+            c=request.json['altitude']
+            d=request.json['temprature']
             
             test_data=[a,b,c,d]
             test_data=np.array(test_data)
@@ -68,15 +47,15 @@ def results():
             predict=flower_model.predict(test_data)
             predicted_value=predict.tolist()[0]
             print(predicted_value)
-            if int(predicted_value==1):
-                res='it is 1'
-            elif int(predicted_value==2):
-                res='it is 2'
-            elif int(predicted_value==3):
-                res='it is 3'
-            else:
-                res='it is 4'
-            return jsonify({'predict':res})
+            # if int(predicted_value==0):
+            #     res='it is sinde  '
+            # elif int(predicted_value==1):
+            #     res='it is teff'
+            # elif int(predicted_value==2):
+            #     res='it is gebs'
+            # else:
+            #     res='it is bokolo'
+            return jsonify({'predict':predicted_value})
             
 @app.route('/crops',methods=['POST'])
 def crops():
