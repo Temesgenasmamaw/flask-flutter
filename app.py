@@ -5,7 +5,7 @@ import pickle
 app = Flask(__name__)
 
 
-flower_model = pickle.load(open('myModel.pkl', 'rb'))
+flower_model = pickle.load(open('Model_03.pkl', 'rb'))
 
 @app.route('/')
 def method_name():
@@ -30,8 +30,9 @@ def results():
     if request.method == 'POST':
             a=request.json['ph']
             b=request.json['rain fall']
-            c=request.json['altitude']
-            d=request.json['temprature']
+            c=request.json['temprature']
+            d=request.json['altitude']
+            
             
             test_data=[a,b,c,d]
             test_data=np.array(test_data)
