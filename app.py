@@ -1,6 +1,4 @@
 from flask import Flask,request,render_template,jsonify
-# from flask_restful import Resource,Api
-# from PIL import Image
 import numpy as np 
 import pickle
 
@@ -12,12 +10,6 @@ flower_model = pickle.load(open('myModel.pkl', 'rb'))
 @app.route('/')
 def method_name():
     return render_template('flower.html')
-# @app.route('/')
-# def method_name():
-#     return 'welcome!!!'
-# @app.route('/flower')
-# def flower():
-#     return render_template('flower.html')
 
 def ValuePredictor(to_predict_list):
     to_predict = np.array(to_predict_list).reshape(1, 4)
