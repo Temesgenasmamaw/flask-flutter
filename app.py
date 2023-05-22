@@ -1,29 +1,12 @@
-from flask import Flask,request,render_template,jsonify
+from flask import Flask,request,render_template,jsonify,Markup
 import numpy as np 
+import pandas as pd
 import pickle
-
+from Utils.fertilizer import fertilizer_dic
 app = Flask(__name__)
 
 
-flower_model = pickle.load(open('Model_03.pkl', 'rb'))
-
-@app.route('/')
-def method_name():
-    return render_template('flower.html')
-
-def ValuePredictor(to_predict_list):
-    to_predict = np.array(to_predict_list).reshape(1, 4)
-    result = flower_model.predict(to_predict)
-    return result
-
-@app.route('/add', methods = ['POST'])
-def recommend():
-    a=request.json['Pregnancies']
-    b=request.json['Glucose']
-    c=request.json['BloodPressure']
-    d=request.json['SkinThickness']
-    add=a+b+c+d
-    return jsonify({'add':add})
+model = pickle.load(open('myModel.pkl', 'rb'))
 
 @app.route('/predict', methods = ['POST'])
 def results():
@@ -33,47 +16,56 @@ def results():
             c=request.json['temprature']
             d=request.json['altitude']
             
-            
             test_data=[a,b,c,d]
             test_data=np.array(test_data)
             test_data=test_data.reshape(1,-1)
-            predict=flower_model.predict(test_data)
+            predict=model.predict(test_data)
             predicted_value=predict.tolist()[0]
             print(predicted_value)
-            # if int(predicted_value==0):
-            #     res='it is sinde  '
-            # elif int(predicted_value==1):
-            #     res='it is teff'
-            # elif int(predicted_value==2):
-            #     res='it is gebs'
-            # else:
-            #     res='it is bokolo'
-            return jsonify({'predict':predicted_value})
-            
-@app.route('/crops',methods=['POST'])
-def crops():
-    if request.method=='POST':     
-        to_predict_list = request.form.to_dict()
-        to_predict_list = list(to_predict_list.values())
-        to_predict_list = list(map(int, to_predict_list))
-        result = ValuePredictor(to_predict_list)
-
-        if int(result)== 1:
-            prediction ='The person is 1'
-        elif int(result)==2:
-            prediction ='The person is 2'
-        elif int(result)==3:
-            prediction ='The person is 3'
-        else:
-            prediction ='The person is 4'
+            print(predict)
+            print(type(predict))
         
-        return jsonify({'flaskResult':prediction})
-        # else:
-        #     prediction ='The person is 4'	
-        # return render_template("flower.html",prediction =prediction)
-   
-    
- 
+            return jsonify({'predict':predicted_value})
+@app.route('/fertilizer', methods=['POST'])
+def fert_recommend():  
+    if request.method == 'POST':   
+
+        crop_name = str(request.json['cropname'])
+        N = int(request.json['nitrogen'])
+        P = int(request.json['phosphorus'])
+        K = int(request.json['potassium'])
+        # ph = float(request.form['ph'])
+
+        df = pd.read_csv('fertilizer.csv')
+
+        nr = df[df['Crop'] == crop_name]['N'].iloc[0]
+        pr = df[df['Crop'] == crop_name]['P'].iloc[0]
+        kr = df[df['Crop'] == crop_name]['K'].iloc[0]
+
+        n = nr - N
+        p = pr - P
+        k = kr - K
+        temp = {abs(n): "N", abs(p): "P", abs(k): "K"}
+        max_value = temp[max(temp.keys())]
+        if max_value == "N":
+            if n < 0:
+                key = 'NHigh'
+            else:
+                key = "Nlow"
+        elif max_value == "P":
+            if p < 0:
+                key = 'PHigh'
+            else:
+                key = "Plow"
+        else:
+            if k < 0:
+                key = 'KHigh'
+            else:
+                key = "Klow"
+
+        fertilizer_result =fertilizer_dic[key]
+        return jsonify({'fertilizer':fertilizer_result})
+
     
 
 if __name__ == '__main__':
